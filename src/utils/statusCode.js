@@ -1,4 +1,4 @@
-export const HttpStatusCodes = {
+export default HttpStatusCodes = {
     
     // 1xx - Informational
     CONTINUE : 100,
