@@ -1,0 +1,25 @@
+import { body } from 'express-validator'
+
+const casoSchema = [
+  body('id')
+    .isUUID().withMessage('O ID deve ser um UUID válido.')
+    .notEmpty().withMessage('O ID é obrigatório.'),
+
+  body('titulo')
+    .isString().withMessage('O título deve ser uma string.')
+    .notEmpty().withMessage('O título é obrigatório.'),
+
+  body('descricao')
+    .isString().withMessage('A descrição deve ser uma string.')
+    .notEmpty().withMessage('A descrição é obrigatória.'),
+
+  body('status')
+    .isIn(['aberto', 'solucionado']).withMessage('O status deve ser "aberto" ou "solucionado".')
+    .notEmpty().withMessage('O status é obrigatório.'),
+
+  body('agente_id')
+    .isUUID().withMessage('O agente_id deve ser um UUID válido.')
+    .notEmpty().withMessage('O agente_id é obrigatório.')
+];
+
+export default casoSchema;
