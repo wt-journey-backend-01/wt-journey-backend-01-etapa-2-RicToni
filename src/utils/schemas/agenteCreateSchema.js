@@ -1,6 +1,6 @@
-import { body } from 'express-validator'
+import { body } from 'express-validator';
 
-const agenteSchema = [
+const agenteCreateSchema = [
   body('id')
     .isUUID().withMessage('O ID deve ser um UUID válido.')
     .notEmpty().withMessage('O ID é obrigatório.'),
@@ -10,7 +10,7 @@ const agenteSchema = [
     .notEmpty().withMessage('O nome é obrigatório.'),
 
   body('dataDeIncorporacao')
-    .isISO8601({ strict: true }).withMessage('A dataDeIncorporacao deve estar no formato YYYY-MM-DD.')
+    .isISO8601({ strict: true }).withMessage("A dataDeIncorporacao deve estar no formato 'YYYY-MM-DD'.")
     .notEmpty().withMessage('A dataDeIncorporacao é obrigatória.'),
 
   body('cargo')
@@ -18,4 +18,4 @@ const agenteSchema = [
     .notEmpty().withMessage('O cargo é obrigatório.')
 ];
 
-export default agenteSchema;
+export default agenteCreateSchema;
