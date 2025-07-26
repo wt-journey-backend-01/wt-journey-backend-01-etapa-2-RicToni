@@ -8,7 +8,14 @@ const router = Router();
 
 
 router.post('/', validateAgenteOnCreate, agenteController.createAgente);
-router.get('/', agenteController.listAgentes);
+router.get('/', (req, res) => {
+    const { cargo, sort } = req.query;
+  
+    if (cargo) return agenteController.getAgentesPorCargo(req, res);
+    if (sort === 'dataDeIncorporacao') return agenteController.getAgentesOrdenados(req, res);
+  
+    return agenteController.listAgentes(req, res);
+  });
 router.get('/:id', agenteController.getAgente);
 router.put('/:id', validateAgenteOnUpdate, agenteController.updateAgente);
 router.patch('/:id', validateAgenteOnPatch, agenteController.updateAgente); 

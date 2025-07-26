@@ -47,3 +47,34 @@ export function deleteAgente(req, res) {
     if (!success) return res.status(statusCode.NOT_FOUND).json({ error: 'Agente não encontrado' });
     res.status(statusCode.NO_CONTENT).send();
   }
+
+export function getAgentesPorCargo(req, res) {
+  const { cargo } = req.query;
+  if (!cargo) {
+    return res.status(statusCode.BAD_REQUEST).json({ error: 'Parâmetro "cargo" é obrigatório.' });
+  }
+
+  const agentes = agenteRepository.getAgentesByCargo(cargo);
+
+  if (!agentes || agentes.length === 0) {
+    return res.status(statusCode.NOT_FOUND).json({ error: 'Nenhum agente encontrado com esse cargo.' });
+  }
+
+  res.status(statusCode.OK).json(agentes);
+}
+
+export function getAgentesOrdenados(req, res) {
+    const { sort } = req.query;
+  
+    if (!sort || sort !== 'dataDeIncorporacao' && sort !== '-dataDeIncorporacao') {
+      return res.status(statusCode.BAD_REQUEST).json({ error: 'Parâmetro "sort" inválido ou ausente.' });
+    }
+  
+    const agentes = agenteRepository.getAgentesOrdenadosPorData(sort);
+  
+    if (!agentes || agentes.length === 0) {
+      return res.status(statusCode.NOT_FOUND).json({ error: 'Nenhum agente encontrado para ordenação.' });
+    }
+  
+    res.status(statusCode.OK).json(agentes);
+  }

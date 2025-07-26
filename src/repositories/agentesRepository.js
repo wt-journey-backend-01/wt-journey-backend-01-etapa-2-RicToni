@@ -74,3 +74,17 @@ export function deleteAgente(id) {
     agents.splice(index, 1);
     return true;
   }
+
+export function getAgentesByCargo(cargo) {
+  return agents.filter((agente) => agente.cargo === cargo);
+}
+
+export function getAgentesOrdenadosPorData(sort) {
+  const sorted = [...agents].sort((a, b) => {
+    const dateA = new Date(a.dataDeIncorporacao);
+    const dateB = new Date(b.dataDeIncorporacao);
+    return sort === 'dataDeIncorporacao' ? dateA - dateB : dateB - dateA;
+  });
+
+  return sorted;
+}
