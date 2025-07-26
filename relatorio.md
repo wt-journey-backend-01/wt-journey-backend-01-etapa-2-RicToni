@@ -1,223 +1,232 @@
 <sup>Esse é um feedback gerado por IA, ele pode conter erros.</sup>
 
-Você tem 9 créditos restantes para usar o sistema de feedback AI.
+Você tem 8 créditos restantes para usar o sistema de feedback AI.
 
 # Feedback para RicToni:
 
-Nota final: **68.8/100**
+Nota final: **73.8/100**
 
-# Feedback para RicToni 🚓👮‍♂️ - Seu Code Buddy na Missão API Policial!
+# Feedback do Code Buddy para RicToni 🚨👮‍♂️
 
----
-
-Olá, RicToni! Primeiro, parabéns pelo esforço e pela dedicação em construir essa API para o Departamento de Polícia! 🎉 Seu projeto já tem várias coisas muito bem feitas, e isso é super importante para continuar evoluindo. Vamos juntos analisar seu código para destravar tudo que pode melhorar, ok?
+Olá, RicToni! Tudo certo? Primeiro, parabéns pelo esforço e por já ter uma API funcional para o Departamento de Polícia! 🎉 Você conseguiu implementar os recursos básicos de agentes e casos com boa organização, e isso é um baita passo para uma API REST completa. Vamos juntos analisar seu código para que ele fique ainda mais robusto e alinhado com as melhores práticas?
 
 ---
 
-## 🎉 Pontos Fortes que Merecem Aplausos!
+## 🌟 O que você mandou muito bem!
 
-- Seu **server.js** está muito bem estruturado, com importações corretas, uso do middleware `express.json()`, e o setup do Swagger para documentação está funcionando! Isso demonstra que você já entende o básico sobre configuração do servidor e middlewares. 👏
-
-- Você implementou bem os endpoints relacionados a agentes: criar, listar, buscar por ID, atualizar (PUT e PATCH) e deletar estão funcionando e com tratamento correto de status HTTP (200, 201, 204, 400, 404). Isso é ótimo! 👮‍♀️
-
-- Também vi que a criação, leitura e deleção dos casos estão funcionando, além do tratamento de payloads incorretos (400) e IDs inexistentes (404) para casos. Você está no caminho certo para garantir uma API robusta! 🚀
-
-- Além disso, você conseguiu implementar filtros simples para casos e agentes, e até mensagens customizadas de erro — mesmo que ainda tenham pontos a ajustar, é super válido ter tentado esses bônus, parabéns pela iniciativa! 👏
+- A estrutura modular do seu projeto está ótima! Você separou bem as rotas, controllers e repositories, o que deixa o código organizado e fácil de manter.
+- O uso do UUID para os IDs dos agentes e casos está perfeito para garantir unicidade.
+- Você implementou corretamente os métodos HTTP principais (GET, POST, PUT, PATCH, DELETE) para os recursos `/agentes` e `/casos`.
+- A manipulação dos arrays em memória está bem feita, usando métodos como `find`, `filter`, `push` e `splice` da forma correta.
+- Os middlewares de validação estão presentes para os agentes e casos, mostrando que você está atento à qualidade dos dados.
+- Implementou mensagens personalizadas para erros 404 e 400, o que melhora a experiência do usuário da API.
+- Bônus: Você já fez filtros e ordenações para agentes e casos, mostrando que está indo além do básico! 👏
 
 ---
 
-## 🔎 Onde Precisamos Focar para Melhorar (Vamos Desvendar Juntos!)
+## 🔍 Pontos Importantes para Melhorar e Aprender
 
-### 1. **Arquivos e Estrutura de Diretórios Faltando**
+### 1. Validação e Tratamento de IDs nos Casos
 
-Ao analisar seu repositório, percebi que os arquivos essenciais para o funcionamento das rotas, controladores e repositórios **não estão presentes**:
-
-- **Não encontrei:**
-  - `routes/agentesRoutes.js`
-  - `routes/casosRoutes.js`
-  - `controllers/agentesController.js`
-  - `controllers/casosController.js`
-  - `repositories/agentesRepository.js`
-  - `repositories/casosRepository.js`
-
-Isso é o ponto fundamental que explica muitas das falhas que você está enfrentando com os endpoints de `/casos`. Sem esses arquivos, seu servidor não tem como responder às requisições corretamente, e isso impacta diretamente na criação, atualização e filtros desses recursos.
-
-**Por que isso é importante?**  
-A arquitetura modular que você precisa seguir depende desses arquivos para organizar seu código e separar responsabilidades. Sem eles, o Express não sabe o que fazer quando chega uma requisição para `/casos` ou `/agentes`.
-
-**Como resolver?**  
-Crie esses arquivos seguindo a estrutura MVC (Model-View-Controller) e garanta que cada um faça sua parte:
-
-- `routes/` deve conter o roteamento, usando `express.Router()`.
-- `controllers/` deve conter as funções que processam a lógica das requisições.
-- `repositories/` deve conter a manipulação dos dados em memória (arrays).
-
-Aqui um exemplo simples de como começar seu `routes/casosRoutes.js`:
+Ao analisar seu `casosController.js`, percebi que você não está validando se o `agente_id` informado em um novo caso realmente existe no sistema. Veja:
 
 ```js
-import { Router } from 'express';
-import { getCasos, createCaso } from '../controllers/casosController.js';
-
-const router = Router();
-
-router.get('/', getCasos);
-router.post('/', createCaso);
-
-// Continue com PUT, PATCH, DELETE...
-
-export default router;
-```
-
-E no `controllers/casosController.js`:
-
-```js
-export const getCasos = (req, res) => {
-  // lógica para listar casos
-  res.status(200).json({ casos: [] });
-};
-
-export const createCaso = (req, res) => {
-  // lógica para criar caso
-  res.status(201).json({ message: 'Caso criado' });
-};
-```
-
-Recomendo fortemente este vídeo para entender como organizar rotas e controladores no Express:  
-👉 [Express.js Routing - Documentação Oficial](https://expressjs.com/pt-br/guide/routing.html)  
-E também este para entender arquitetura MVC em Node.js:  
-👉 [Arquitetura MVC com Node.js](https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH)
-
----
-
-### 2. **Validação e Tratamento de Erros**
-
-Você fez um bom trabalho implementando validações básicas para agentes e casos, mas percebi algumas brechas que causaram penalidades:
-
-- **Permite registrar agentes com data de incorporação no futuro:**  
-  Isso pode causar inconsistências nos dados. A validação precisa garantir que a data de incorporação seja sempre menor ou igual à data atual.
-
-- **Permite alterar o ID de agentes e casos via PUT:**  
-  IDs são identificadores únicos e imutáveis. Seu código deve impedir que o ID seja alterado em uma atualização completa (PUT).
-
-Para tratar essas validações, uma abordagem comum é usar middlewares que verificam o payload antes de chegar ao controlador. Por exemplo:
-
-```js
-if (new Date(req.body.dataIncorporacao) > new Date()) {
-  return res.status(400).json({ error: 'Data de incorporação não pode ser no futuro.' });
-}
-
-if (req.body.id && req.body.id !== req.params.id) {
-  return res.status(400).json({ error: 'Não é permitido alterar o ID.' });
+export function createCaso(req, res) {
+  const novoCaso = { id: uuidv4(), ...req.body };
+  const saved = casoRepository.createCaso(novoCaso);
+  res.status(statusCode.CREATED).json(saved);
 }
 ```
 
-Para aprofundar nesse assunto, veja este vídeo que explica muito bem validação e tratamento de erros em APIs Node.js/Express:  
-👉 [Validação de Dados em APIs Node.js](https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_)  
-E para entender melhor os status 400 e 404:  
-👉 [Status HTTP 400 - Bad Request](https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/400)  
-👉 [Status HTTP 404 - Not Found](https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/404)
+Aqui, você cria o caso direto, sem verificar se o `agente_id` no payload faz sentido. Isso pode permitir casos vinculados a agentes inexistentes, o que quebra a integridade dos dados. Isso explica porque você recebe erros ao tentar criar casos com agente inválido.
 
----
+**Como resolver?** Antes de criar o caso, busque o agente pelo ID informado. Se não existir, retorne um erro 404.
 
-### 3. **Filtros e Funcionalidades Bônus**
-
-Você tentou implementar filtros avançados e mensagens de erro customizadas, o que é ótimo! Porém, algumas funcionalidades ainda não estão funcionando como esperado, especialmente:
-
-- Filtros por status do caso, agente responsável e keywords no título/descrição.
-- Ordenação de agentes por data de incorporação (ascendente e descendente).
-- Mensagens de erro personalizadas para argumentos inválidos.
-
-Esses recursos geralmente dependem da existência dos controllers e repositórios corretos, além de uma boa manipulação dos arrays em memória. Como esses arquivos estão faltando, o código não consegue executar essas funcionalidades.
-
-Assim que você criar os arquivos de rotas, controllers e repositories, poderá implementar esses filtros usando métodos como `filter()`, `sort()` e `includes()` do JavaScript.
-
-Aqui um exemplo básico de filtro por status no array de casos:
+Exemplo:
 
 ```js
-const casosFiltrados = casos.filter(caso => caso.status === req.query.status);
-res.status(200).json(casosFiltrados);
+import { getAgenteById } from '../repositories/agentesRepository.js';
+
+export function createCaso(req, res) {
+  const { agente_id } = req.body;
+  const agente = getAgenteById(agente_id);
+
+  if (!agente) {
+    return res.status(statusCode.NOT_FOUND).json({ error: 'Agente não encontrado para o ID fornecido' });
+  }
+
+  const novoCaso = { id: uuidv4(), ...req.body };
+  const saved = casoRepository.createCaso(novoCaso);
+  res.status(statusCode.CREATED).json(saved);
+}
 ```
 
-Para melhorar sua manipulação de arrays, recomendo este vídeo que explica bem os métodos essenciais:  
-👉 [Manipulação de Arrays em JavaScript](https://youtu.be/glSgUKA5LjE?si=t9G2NsC8InYAU9cI)
+👉 Recurso recomendado: [Validação de Dados e Tratamento de Erros na API](https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/404) e [Como fazer validação em APIs Node.js/Express](https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_)
 
 ---
 
-### 4. **Estrutura de Arquivos e Organização**
+### 2. Atualização Parcial (PATCH) de Casos com Validação
 
-Notei que sua estrutura de arquivos não está exatamente conforme o esperado para o projeto. Isso pode dificultar a manutenção e a escalabilidade do código, além de gerar confusão para quem for revisar ou continuar seu projeto.
+Você implementou o método `partialUpdateCaso` no `casosController.js` assim:
 
-O ideal é seguir esta estrutura que o projeto pede:
-
-```
-📦 SEU-REPOSITÓRIO
-│
-├── package.json
-├── server.js
-├── .env (opcional)
-│
-├── routes/
-│   ├── agentesRoutes.js
-│   └── casosRoutes.js
-│
-├── controllers/
-│   ├── agentesController.js
-│   └── casosController.js
-│
-├── repositories/
-│   ├── agentesRepository.js
-│   └── casosRepository.js
-│
-├── docs/
-│   └── swagger.js
-│
-└── utils/
-    └── errorHandler.js
+```js
+export function partialUpdateCaso(req, res) {
+  const updatedCaso = casoRepository.updateCaso(req.params.id, req.body);
+  if (!updatedCaso) return res.status(statusCode.NOT_FOUND).json({ message: 'Caso não encontrado' });
+  res.json(updatedCaso);
+}
 ```
 
-Manter essa organização facilita muito a leitura e o desenvolvimento. Recomendo fortemente assistir este vídeo para entender a arquitetura MVC aplicada ao Node.js:  
-👉 [Arquitetura MVC em Node.js](https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH)
+Aqui, não há validação do payload, e você está usando a mesma função `updateCaso` do repositório, que é para atualização completa. Isso pode causar problemas, principalmente se o payload estiver em formato incorreto.
+
+Além disso, não está retornando o status code correto (deveria ser 200 ou 204, mas você só faz `res.json(updatedCaso)` sem status explícito).
+
+**Sugestão:** Use middlewares de validação específicos para PATCH e retorne status 200 OK com o objeto atualizado. Também valide se o caso existe antes de atualizar.
 
 ---
 
-## 🛠️ Dicas Práticas para Começar a Ajustar
+### 3. Falha na Importação dos Middlewares de Validação para Casos
 
-1. **Crie os arquivos que estão faltando** em `routes/`, `controllers/` e `repositories/` para agentes e casos.  
-2. **Implemente o roteamento básico** com `express.Router()` para cada recurso.  
-3. **Implemente controladores com funções claras** para cada método HTTP (GET, POST, PUT, PATCH, DELETE).  
-4. **Mantenha os dados em arrays na camada de repositório**, e manipule esses arrays com métodos JavaScript para buscar, criar, atualizar e deletar.  
-5. **Implemente validações rigorosas** para garantir que os dados recebidos estejam corretos, como impedir datas futuras e alteração de IDs.  
-6. **Implemente o tratamento de erros** retornando status codes adequados e mensagens claras para o cliente.  
-7. **Teste cada endpoint com ferramentas como Postman ou Insomnia** para garantir que tudo está funcionando antes de avançar.
+No arquivo `routes/casosRoutes.js`, você importou os middlewares assim:
 
----
+```js
+import validateCasoOnCreate from '../utils/middlewares/validateCasoOnCreate.js';
+import validateCasoOnUpdate from '../utils/middlewares/validationCasoOnUpdate.js'
+import validateCasoOnPatch from '../utils/middlewares/validationCasoOnPatch.js';
+```
 
-## 📚 Recursos para Aprofundar Seus Conhecimentos
+Note que os dois últimos imports usam o prefixo `validation` em vez de `validate`. Isso pode causar erro de importação, pois os arquivos provavelmente têm o nome `validateCasoOnUpdate.js` e `validateCasoOnPatch.js` (assim como os middlewares de agentes).
 
-- [Express.js Routing - Documentação Oficial](https://expressjs.com/pt-br/guide/routing.html)  
-- [Arquitetura MVC com Node.js - YouTube](https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH)  
-- [Validação de Dados em APIs Node.js - YouTube](https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_)  
-- [Manipulação de Arrays em JavaScript - YouTube](https://youtu.be/glSgUKA5LjE?si=t9G2NsC8InYAU9cI)  
-- [Status HTTP 400 e 404 - MDN](https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/400) e [https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/404](https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/404)
+Essa inconsistência impede que os middlewares sejam executados, o que pode explicar por que a validação do PATCH para casos falha, e o servidor não retorna o status 400 quando deveria.
 
----
+**Correção:** Ajuste os nomes das importações para:
 
-## 📋 Resumo Rápido para Você Focar
+```js
+import validateCasoOnUpdate from '../utils/middlewares/validateCasoOnUpdate.js';
+import validateCasoOnPatch from '../utils/middlewares/validateCasoOnPatch.js';
+```
 
-- **Crie os arquivos faltantes** (`routes`, `controllers`, `repositories`) para agentes e casos.  
-- **Garanta que a arquitetura MVC esteja correta** e que o Express esteja configurado para usar essas rotas.  
-- **Implemente validações rigorosas**, especialmente para impedir datas futuras e alteração de IDs.  
-- **Trate erros com status HTTP adequados** e mensagens claras.  
-- **Implemente filtros e ordenações após garantir a base dos endpoints funcionando.**  
-- **Organize a estrutura de arquivos conforme o padrão esperado pelo projeto.**
+Isso garante que os middlewares sejam carregados e usados corretamente.
 
 ---
 
-RicToni, você está no caminho certo e com certeza tem muito potencial para finalizar essa API com excelência! 🚀 Não desanime com esses desafios, pois são eles que fazem a gente crescer como desenvolvedor. Se precisar, volte aos vídeos recomendados, revise a arquitetura e vá construindo passo a passo. A prática leva à perfeição! 💪
+### 4. Validação de Campos que Não Podem Ser Alterados (ID)
 
-Estou aqui para te ajudar nessa jornada, conte comigo para o que precisar! 😉
+Você tem uma penalidade porque permite alterar o campo `id` tanto de agentes quanto de casos via PUT.
 
-Abraços e bons códigos! 👨‍💻✨
+No `agentesController.js` e `casosController.js`, o método update usa o corpo da requisição diretamente para atualizar o objeto:
+
+```js
+const dadosAtualizacao = req.body; 
+const agente = agenteRepository.updateAgente(id, dadosAtualizacao);
+```
+
+E no repositório:
+
+```js
+if (nome !== undefined) agente.nome = nome;
+if (dataDeIncorporacao !== undefined) agente.dataDeIncorporacao = dataDeIncorporacao;
+if (cargo !== undefined) agente.cargo = cargo;
+```
+
+Aqui, você não trata o campo `id`, mas no caso dos casos, você faz um merge direto com o spread operator:
+
+```js
+casos[index] = { ...casos[index], ...updatedFields };
+```
+
+Isso permite que o `id` seja alterado, o que não pode acontecer.
+
+**Como corrigir?** No controller ou no repositório, filtre o campo `id` para que ele nunca seja alterado, mesmo que venha no payload.
+
+Exemplo de proteção no repositório:
+
+```js
+export function updateCaso(id, updatedFields) {
+  const index = casos.findIndex(caso => caso.id === id);
+  if (index === -1) return null;
+
+  // Remove a propriedade id para evitar alteração
+  const { id: _, ...fieldsToUpdate } = updatedFields;
+
+  casos[index] = { ...casos[index], ...fieldsToUpdate };
+  return casos[index];
+}
+```
+
+Esse cuidado garante que o `id` seja imutável e mantém a integridade dos dados.
+
+---
+
+### 5. Validação de Datas (Data de Incorporação no Futuro)
+
+Você permite que um agente seja criado ou atualizado com a data de incorporação no futuro, o que não faz sentido no contexto.
+
+Isso indica que a validação da data não está implementada ou não está funcionando corretamente nos middlewares de validação.
+
+**Sugestão:** No middleware de validação (ex: `validateAgenteOnCreate.js`), adicione uma regra que verifica se a data de incorporação é menor ou igual à data atual.
+
+Exemplo usando `express-validator`:
+
+```js
+check('dataDeIncorporacao')
+  .isDate()
+  .custom(value => {
+    const inputDate = new Date(value);
+    const now = new Date();
+    if (inputDate > now) {
+      throw new Error('Data de incorporação não pode ser no futuro');
+    }
+    return true;
+  })
+```
+
+Assim, você evita dados inválidos que podem comprometer a lógica da aplicação.
+
+---
+
+### 6. Pequena Observação sobre Organização de Arquivos
+
+Sua estrutura está quase perfeita! Só recomendo que você crie o arquivo `utils/errorHandler.js` para centralizar o tratamento de erros, isso facilita a manutenção e deixa seu código mais limpo.
+
+Além disso, o arquivo `docs/swagger.json` está presente, mas o ideal é que o Swagger seja servido a partir de um arquivo `.js` ou gerado dinamicamente — isso é só uma dica para projetos futuros.
+
+---
+
+## 📚 Recursos que vão te ajudar muito!
+
+- Para entender melhor a arquitetura MVC e organização de arquivos:  
+  https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH
+
+- Para aprender sobre validação de dados em APIs Node.js/Express:  
+  https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_
+
+- Para entender como usar status codes HTTP corretamente e manipular respostas no Express:  
+  https://youtu.be/RSZHvQomeKE
+
+- Para garantir integridade dos dados e manipular arrays em memória:  
+  https://youtu.be/glSgUKA5LjE?si=t9G2NsC8InYAU9cI
+
+---
+
+## 📝 Resumo Rápido do Que Você Precisa Focar
+
+- **Validar se o `agente_id` existe antes de criar um caso novo.**
+- **Corrigir os nomes dos middlewares de validação para casos para que eles sejam aplicados corretamente.**
+- **Impedir alteração do campo `id` tanto em agentes quanto em casos no update (PUT/PATCH).**
+- **Adicionar validação para impedir datas de incorporação no futuro.**
+- **Garantir que o método PATCH para casos valide o payload e retorne status apropriado.**
+- **Considerar centralizar o tratamento de erros em um middleware específico.**
+
+---
+
+RicToni, você está no caminho certo e já fez um trabalho muito bom! 💪 Continue aprimorando essas validações e a robustez da sua API, pois isso vai fazer toda a diferença para que seu projeto seja profissional e confiável.
+
+Se precisar, volte aos vídeos recomendados e revise as partes de validação e manipulação de dados. Você vai se surpreender com o quanto pode evoluir com pequenos ajustes!
+
+Estou aqui torcendo pelo seu sucesso! 🚀🚓
+
+Abraços e até a próxima revisão! 👋😄
 
 > Caso queira tirar uma dúvida específica, entre em contato com o Chapter no nosso [discord](https://discord.gg/DryuHVnz).
 
