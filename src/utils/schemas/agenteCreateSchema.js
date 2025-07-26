@@ -1,9 +1,6 @@
 import { body } from 'express-validator';
 
 const agenteCreateSchema = [
-  body('id')
-    .isUUID().withMessage('O ID deve ser um UUID válido.')
-    .notEmpty().withMessage('O ID é obrigatório.'),
 
   body('nome')
     .isString().withMessage('O nome deve ser uma string.')

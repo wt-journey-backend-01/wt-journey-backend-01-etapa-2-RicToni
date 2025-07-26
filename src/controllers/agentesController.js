@@ -1,4 +1,4 @@
-import * as agenteRepository from '../repositories/agenteRepository.js';
+import * as agenteRepository from '../repositories/agentesRepository.js';
 import statusCode from '../utils/statusCode.js'
 
 

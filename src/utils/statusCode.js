@@ -1,4 +1,4 @@
-export default HttpStatusCodes = {
+export default {
     
     // 1xx - Informational
     CONTINUE : 100,
