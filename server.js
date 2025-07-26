@@ -1,6 +1,6 @@
 import express from 'express';
-import agentesRoutes from './src/routes/agentesRoutes.js'
-import casosRoutes from './src/routes/casosRoutes.js'
+import agentesRoutes from './routes/agentesRoutes.js'
+import casosRoutes from './routes/casosRoutes.js'
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -13,7 +13,7 @@ app.use(express.json());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const swaggerDocument = JSON.parse(
-    fs.readFileSync(path.join(__dirname, './src/docs/swagger.json'), 'utf8')
+    fs.readFileSync(path.join(__dirname, './docs/swagger.json'), 'utf8')
   );
 
 app.use((req, res, next) => {
