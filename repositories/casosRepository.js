@@ -32,7 +32,10 @@ export function getCasoById(id) {
 export function updateCaso(id, updatedFields) {
   const index = casos.findIndex(caso => caso.id === id);
   if (index === -1) return null;
-  casos[index] = { ...casos[index], ...updatedFields };
+
+  const { id: _, ...fieldsToUpdate } = updatedFields;
+
+  casos[index] = { ...casos[index], ...fieldsToUpdate };
   return casos[index];
 }
 

@@ -53,18 +53,14 @@ export function getAgenteById(id){
     return agents.find((agente) => agente.id === id);
 }
 
-export function updateAgente(id, { nome, dataDeIncorporacao, cargo }) {
-    const agente = agents.find((agente) => {
-        return agente.id === id ;
-    })
+export function updateAgente(id, updatedFields) {
+  const index = agents.findIndex(agente => agente.id === id);
+  if (index === -1) return null;
 
-    if (!agente) return null;
+  const { id: _, ...fieldsToUpdate } = updatedFields;
 
-    if (nome !== undefined) agente.nome = nome;
-    if (dataDeIncorporacao !== undefined) agente.dataDeIncorporacao = dataDeIncorporacao;
-    if (cargo !== undefined) agente.cargo = cargo;
-
-    return agente;
+  agents[index] = { ...agents[index], ...fieldsToUpdate };
+  return agents[index];
 }
 
 export function deleteAgente(id) {

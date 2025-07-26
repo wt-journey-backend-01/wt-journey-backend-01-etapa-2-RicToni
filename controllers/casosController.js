@@ -1,12 +1,21 @@
 import { v4 as uuidv4 } from 'uuid';
 import * as casoRepository from '../repositories/casosRepository.js';
+import * as agentesRepository from '../repositories/agentesRepository.js';
 import { getAgenteById } from '../repositories/agentesRepository.js';
 import statusCode from '../utils/statusCode.js';
 
 export function createCaso(req, res) {
+  const { agente_id } = req.body;
+  
+  const agente = agentesRepository.getAgenteById(agente_id);
+
+  if (!agente) {
+    return res.status(statusCode.NOT_FOUND).json({ message: 'Agente não encontrado' });
+  }
+
   const novoCaso = { id: uuidv4(), ...req.body };
-  const saved = casoRepository.createCaso(novoCaso);
-  res.status(statusCode.CREATED).json(saved);
+  const saved =  casoRepository.createCaso(novoCaso);
+  return res.status(statusCode.CREATED).json(saved);
 }
 
 export function listCasos(req, res) {

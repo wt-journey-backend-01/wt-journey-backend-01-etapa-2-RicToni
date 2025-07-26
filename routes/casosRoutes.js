@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import * as casoController from '../controllers/casosController.js';
 import validateCasoOnCreate from '../utils/middlewares/validateCasoOnCreate.js';
-import validateCasoOnUpdate from '../utils/middlewares/validationCasoOnUpdate.js'
-import validateCasoOnPatch from '../utils/middlewares/validationCasoOnPatch.js';
+import validateCasoOnUpdate from '../utils/middlewares/validateCasoOnUpdate.js'
+import validateCasoOnPatch from '../utils/middlewares/validateCasoOnPatch.js';
 
 
 
