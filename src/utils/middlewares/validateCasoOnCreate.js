@@ -1,5 +1,5 @@
 import { validationResult } from 'express-validator';
-import casoCreateSchema from '../schemas/casoCreateSchema';
+import casoCreateSchema from '../schemas/casoCreateSchema.js';
 
 const validateCasoOnCreate = [
   ...casoCreateSchema,

@@ -1,11 +1,20 @@
 import * as agenteRepository from '../repositories/agentesRepository.js';
 import statusCode from '../utils/statusCode.js'
+import { v4 as uuidv4 } from 'uuid';
 
 
 export function createAgente(req, res){
     const { nome, dataDeIncorporacao, cargo } = req.body;
-    const agente = agenteRepository.createAgente({ nome, dataDeIncorporacao, cargo });
-    res.status(statusCode.CREATED).json(agente);    
+
+    const novoAgente = {
+        id: uuidv4(),
+        nome,
+        dataDeIncorporacao,
+        cargo
+      };
+
+      agenteRepository.createAgente(novoAgente);
+      return res.status(statusCode.CREATED).json(novoAgente);
 }
 
 export function listAgentes(req, res) {

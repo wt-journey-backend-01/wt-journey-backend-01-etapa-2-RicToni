@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 
 const agents = [
     {
@@ -35,9 +34,9 @@ const agents = [
 
 ];
 
-export function createAgente({nome, dataDeIncorporacao, cargo}) {
+export function createAgente({id, nome, dataDeIncorporacao, cargo}) {
     const agente = {
-        id: uuidv4(),
+        id,
         nome, 
         dataDeIncorporacao, 
         cargo
