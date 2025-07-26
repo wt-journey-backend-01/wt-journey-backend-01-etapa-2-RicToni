@@ -9,15 +9,10 @@ import validateCasoOnPatch from '../utils/middlewares/validationCasoOnPatch.js';
 const router = Router();
 
 router.get('/', casoController.listCasos);
-
 router.get('/:id', casoController.getCaso);
-
 router.post('/', validateCasoOnCreate, casoController.createCaso);
-
 router.put('/:id', validadeCasoOnUpdate, casoController.updateCaso);
-
 router.patch('/:id', validateCasoOnPatch, casoController.partialUpdateCaso);
-
 router.delete('/:id', casoController.deleteCaso);
 
 export default router;

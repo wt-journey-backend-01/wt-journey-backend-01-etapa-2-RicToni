@@ -12,7 +12,7 @@ const casoCreateSchema = [
   body('status')
     .isString().withMessage('O status deve ser uma string.')
     .notEmpty().withMessage('O status é obrigatório.')
-    .isIn(['aberto', 'solucionado']).withMessage('O status deve ser "aberto" ou "solucionado".'),
+    .isIn(['aberto', 'solucionado ']).withMessage('O status deve ser "aberto" ou "solucionado".'),
 
   body('agente_id')
     .isUUID().withMessage('O agente_id deve ser um UUID válido.')

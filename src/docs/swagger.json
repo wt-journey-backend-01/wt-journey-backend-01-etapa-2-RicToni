@@ -1,0 +1,256 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "API de Agentes e Casos Policiais",
+      "version": "1.0.0",
+      "description": "Documentação Swagger da API de gerenciamento de agentes e casos policiais."
+    },
+    "servers": [
+      {
+        "url": "http://localhost:3000",
+        "description": "Servidor Local"
+      }
+    ],
+    "paths": {
+      "/agentes": {
+        "get": {
+          "summary": "Lista todos os agentes",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "cargo",
+              "schema": { "type": "string" },
+              "description": "Filtra agentes por cargo"
+            },
+            {
+              "in": "query",
+              "name": "sort",
+              "schema": { "type": "string" },
+              "description": "Ordena por dataDeIncorporacao (ex: sort=dataDeIncorporacao ou sort=-dataDeIncorporacao)"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Lista de agentes",
+              "content": {
+                "application/json": {
+                  "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Agente" } }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "summary": "Cadastra um novo agente",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Agente" }
+              }
+            }
+          },
+          "responses": {
+            "201": { "description": "Agente criado com sucesso" },
+            "400": { "$ref": "#/components/responses/BadRequest" }
+          }
+        }
+      },
+      "/agentes/{id}": {
+        "get": {
+          "summary": "Busca um agente pelo ID",
+          "parameters": [
+            { "in": "path", "name": "id", "required": true, "schema": { "type": "string", "format": "uuid" } }
+          ],
+          "responses": {
+            "200": { "description": "Agente encontrado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Agente" } } } },
+            "404": { "$ref": "#/components/responses/NotFound" }
+          }
+        },
+        "put": {
+          "summary": "Atualiza um agente por completo",
+          "parameters": [
+            { "in": "path", "name": "id", "required": true, "schema": { "type": "string", "format": "uuid" } }
+          ],
+          "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Agente" } } } },
+          "responses": { "200": { "description": "Agente atualizado" }, "400": { "$ref": "#/components/responses/BadRequest" }, "404": { "$ref": "#/components/responses/NotFound" } }
+        },
+        "patch": {
+          "summary": "Atualiza parcialmente um agente",
+          "parameters": [
+            { "in": "path", "name": "id", "required": true, "schema": { "type": "string", "format": "uuid" } }
+          ],
+          "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Agente" } } } },
+          "responses": { "200": { "description": "Agente atualizado" }, "400": { "$ref": "#/components/responses/BadRequest" }, "404": { "$ref": "#/components/responses/NotFound" } }
+        },
+        "delete": {
+          "summary": "Remove um agente",
+          "parameters": [
+            { "in": "path", "name": "id", "required": true, "schema": { "type": "string", "format": "uuid" } }
+          ],
+          "responses": { "204": { "description": "Agente removido com sucesso" }, "404": { "$ref": "#/components/responses/NotFound" } }
+        }
+      },
+      "/casos": {
+        "get": {
+          "summary": "Lista todos os casos",
+          "parameters": [
+            { "in": "query", "name": "agente_id", "schema": { "type": "string", "format": "uuid" } },
+            { "in": "query", "name": "status", "schema": { "type": "string" } },
+            { "in": "query", "name": "q", "schema": { "type": "string" }, "description": "Busca full-text" }
+          ],
+          "responses": {
+            "200": {
+              "description": "Lista de casos",
+              "content": {
+                "application/json": {
+                  "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Caso" } }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "summary": "Cria um novo caso",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Caso" }
+              }
+            }
+          },
+          "responses": {
+            "201": { "description": "Caso criado com sucesso" },
+            "400": { "$ref": "#/components/responses/BadRequest" }
+          }
+        }
+      },
+      "/casos/{id}": {
+        "get": {
+          "summary": "Busca um caso pelo ID",
+          "parameters": [
+            { "in": "path", "name": "id", "required": true, "schema": { "type": "string", "format": "uuid" } }
+          ],
+          "responses": {
+            "200": { "description": "Caso encontrado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Caso" } } } },
+            "404": { "$ref": "#/components/responses/NotFound" }
+          }
+        },
+        "put": {
+          "summary": "Atualiza um caso por completo",
+          "parameters": [
+            { "in": "path", "name": "id", "required": true, "schema": { "type": "string", "format": "uuid" } }
+          ],
+          "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Caso" } } } },
+          "responses": { "200": { "description": "Caso atualizado" }, "400": { "$ref": "#/components/responses/BadRequest" }, "404": { "$ref": "#/components/responses/NotFound" } }
+        },
+        "patch": {
+          "summary": "Atualiza parcialmente um caso",
+          "parameters": [
+            { "in": "path", "name": "id", "required": true, "schema": { "type": "string", "format": "uuid" } }
+          ],
+          "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Caso" } } } },
+          "responses": { "200": { "description": "Caso atualizado" }, "400": { "$ref": "#/components/responses/BadRequest" }, "404": { "$ref": "#/components/responses/NotFound" } }
+        },
+        "delete": {
+          "summary": "Remove um caso",
+          "parameters": [
+            { "in": "path", "name": "id", "required": true, "schema": { "type": "string", "format": "uuid" } }
+          ],
+          "responses": { "204": { "description": "Caso removido com sucesso" }, "404": { "$ref": "#/components/responses/NotFound" } }
+        }
+      },
+      "/casos/{caso_id}/agente": {
+        "get": {
+          "summary": "Retorna os dados do agente responsável por um caso",
+          "parameters": [
+            { "in": "path", "name": "caso_id", "required": true, "schema": { "type": "string", "format": "uuid" } }
+          ],
+          "responses": {
+            "200": { "description": "Agente retornado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Agente" } } } },
+            "404": { "$ref": "#/components/responses/NotFound" }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "Agente": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string", "format": "uuid" },
+            "nome": { "type": "string" },
+            "dataDeIncorporacao": { "type": "string", "format": "date" },
+            "cargo": { "type": "string" }
+          },
+          "required": ["nome", "dataDeIncorporacao", "cargo"]
+        },
+        "Caso": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string", "format": "uuid" },
+            "titulo": { "type": "string" },
+            "descricao": { "type": "string" },
+            "status": { "type": "string", "enum": ["aberto", "solucionado"] },
+            "agente_id": { "type": "string", "format": "uuid" }
+          },
+          "required": ["titulo", "descricao", "status", "agente_id"]
+        }
+      },
+      "responses": {
+        "BadRequest": {
+          "description": "Parâmetros inválidos",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": { "type": "integer" },
+                  "message": { "type": "string" },
+                  "errors": { "type": "array", "items": { "type": "object" } }
+                }
+              },
+              "example": {
+                "status": 400,
+                "message": "Parâmetros inválidos",
+                "errors": [{ "status": "O campo 'status' pode ser somente 'aberto' ou 'solucionado'" }]
+              }
+            }
+          }
+        },
+        "NotFound": {
+            "description": "Recurso não encontrado. A mensagem pode variar conforme a entidade (ex: 'Agente não encontrado.', 'Caso não encontrado.').",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "integer", "example": 404 },
+                    "message": { "type": "string", "example": "Agente não encontrado." }
+                  },
+                  "required": ["status", "message"]
+                },
+                "examples": {
+                  "AgenteNãoEncontrado": {
+                    "summary": "Agente não encontrado",
+                    "value": {
+                      "status": 404,
+                      "message": "Agente não encontrado."
+                    }
+                  },
+                  "CasoNãoEncontrado": {
+                    "summary": "Caso não encontrado",
+                    "value": {
+                      "status": 404,
+                      "message": "Caso não encontrado."
+                    }
+                  }
+      }
+    }
+  }
+}
+      }
+    }
+  }
+  
