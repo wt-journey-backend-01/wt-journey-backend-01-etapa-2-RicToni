@@ -38,7 +38,7 @@ export function updateCaso(req, res) {
 export function partialUpdateCaso(req, res) {
   const updatedCaso = casoRepository.updateCaso(req.params.id, req.body);
   if (!updatedCaso) return res.status(statusCode.NOT_FOUND).json({ message: 'Caso não encontrado' });
-  res.json(updatedCaso);
+  res.status(statusCode.OK).json(updatedCaso);
 }
 
 export function deleteCaso(req, res) {
