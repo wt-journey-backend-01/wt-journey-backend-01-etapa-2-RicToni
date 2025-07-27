@@ -1,276 +1,261 @@
 <sup>Esse é um feedback gerado por IA, ele pode conter erros.</sup>
 
-Você tem 7 créditos restantes para usar o sistema de feedback AI.
+Você tem 6 créditos restantes para usar o sistema de feedback AI.
 
 # Feedback para RicToni:
 
 Nota final: **73.8/100**
 
-Olá, RicToni! 👋😊
+```markdown
+# Feedback para RicToni 🚓🚀
 
-Antes de tudo, parabéns pelo empenho e pela entrega da sua API para o Departamento de Polícia! 🎉🚓 Você conseguiu implementar toda a estrutura básica dos recursos `/agentes` e `/casos`, com rotas, controllers e repositories bem organizados, e ainda aplicou validações e tratamento de erros em várias partes do seu código. Isso é um baita avanço! 👏👏
-
-Também quero destacar que você foi além do básico ao implementar filtros, ordenações e mensagens de erro customizadas, mesmo que ainda tenha alguns pontos para ajustar. Isso mostra que você está disposto a explorar funcionalidades extras, o que é muito bacana. 🌟
-
----
-
-## Vamos analisar com calma os pontos que podem ser melhorados para sua API ficar ainda mais robusta e alinhada com as expectativas do desafio? 🕵️‍♂️🔍
+Olá, RicToni! Que jornada legal você está trilhando com essa API para o Departamento de Polícia! 👏 Primeiro, quero parabenizar você pelo esforço e pela organização geral do projeto. Seu código está bem modularizado, com rotas, controllers e repositories separados, e isso já é meio caminho andado para um projeto escalável e fácil de manter. 🎉
 
 ---
 
-### 1. Atualização Parcial de Agente (PATCH) não valida corretamente o payload
+## 🎯 Pontos Fortes que Merecem Destaque
 
-Você tem middlewares de validação para criação e atualização de agentes, inclusive para PATCH (`validateAgenteOnPatch`), mas percebi que o teste de receber `400 Bad Request` ao tentar atualizar parcialmente com um payload inválido está falhando.
+- Você implementou todos os métodos HTTP para os recursos `/agentes` e `/casos`, o que é essencial para uma API RESTful completa.
+- A organização em pastas e arquivos está muito boa, seguindo a arquitetura MVC (Model-View-Controller) com controllers, routes e repositories.
+- O uso do `express-validator` para validação e middlewares específicos para cada operação mostra que você está preocupado com a qualidade dos dados recebidos.
+- A documentação via Swagger está integrada e funcionando, o que é excelente para facilitar o entendimento da API.
+- Você conseguiu implementar filtros, ordenação e buscas, que são diferenciais importantes para a experiência do usuário.
+- O tratamento de erros com mensagens personalizadas para alguns casos está presente, o que melhora a comunicação da API com o cliente.
 
-**Por quê?**
+---
 
-- Isso indica que seu middleware de validação para PATCH no agente não está rejeitando payloads com campos inválidos, por exemplo, campos que não existem ou formatos incorretos.
-- No seu arquivo `routes/agentesRoutes.js`, você usa o middleware:
+## 🕵️‍♂️ Análise Profunda das Áreas para Melhorar
+
+### 1. Validação no PATCH para atualização parcial de agentes
+
+Você está quase lá com a atualização parcial (`PATCH`) de agentes, mas percebi que o endpoint aceita payloads em formatos incorretos sem retornar o status 400 esperado. Isso acontece porque o middleware de validação para o PATCH não está bloqueando corretamente dados inválidos.
+
+No seu arquivo `routes/agentesRoutes.js`:
 
 ```js
 router.patch('/:id', validateAgenteOnPatch, agenteController.updateAgente);
 ```
 
-- Mas no controller, você chama `updateAgente` que é o mesmo usado para PUT. Isso é ok, mas o middleware precisa garantir a validação correta para PATCH (que aceita campos parciais).
+E no controller:
 
-**Dica para corrigir:**
+```js
+export function updateAgente(req, res) {
+    // ...
+}
+```
 
-- Reveja seu middleware `validateAgenteOnPatch.js` para garantir que ele rejeite payloads com campos inválidos e formatos errados.
-- Certifique-se de validar tipos, formatos (ex: datas no passado), e campos permitidos.
-- Para entender melhor como fazer validação correta e retornar 400 com mensagens customizadas, recomendo fortemente este vídeo:  
-  👉 [Validação de dados em APIs Node.js/Express](https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_)
+Aqui, o problema provavelmente está no middleware `validateAgenteOnPatch.js`, que deveria validar os dados e rejeitar payloads mal formatados. Certifique-se que esse middleware verifica os campos obrigatórios e o formato, e que, em caso de erro, ele retorna um `res.status(400).json({ error: 'Mensagem de erro' })` e interrompe o fluxo com `return`.
+
+👉 Recomendo revisar a implementação do middleware de validação para PATCH, garantindo que ele rejeite dados incompletos ou mal formatados. Para isso, dê uma olhada nesse vídeo que explica validação de dados em APIs Node.js/Express de forma clara:  
+https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_
 
 ---
 
-### 2. Atualização de Caso (PUT e PATCH) não retorna 404 para casos inexistentes
+### 2. Atualização e alteração indevida do campo ID em PUT
 
-Você implementou os endpoints de atualização de casos (`updateCaso` e `partialUpdateCaso`) no `controllers/casosController.js`, o que é ótimo! Porém, percebi que ao tentar atualizar um caso inexistente, você não está retornando o status correto `404 Not Found` em todos os cenários.
+Notei que você permite a alteração do campo `id` tanto em agentes quanto em casos ao usar o método PUT. Isso é um problema porque o `id` deve ser imutável — ele é o identificador único do recurso.
 
-Analisando o seu código:
+No seu controller de agentes, por exemplo, na função `updateAgente`:
 
 ```js
-export function updateCaso(req, res) {
-  const updatedCaso = casoRepository.updateCaso(req.params.id, req.body);
-  if (!updatedCaso) return res.status(statusCode.NOT_FOUND).json({ message: 'Caso não encontrado' });
-  res.status(statusCode.OK).json(updatedCaso);
-}
-
-export function partialUpdateCaso(req, res) {
-  const updatedCaso = casoRepository.updateCaso(req.params.id, req.body);
-  if (!updatedCaso) return res.status(statusCode.NOT_FOUND).json({ message: 'Caso não encontrado' });
-  res.json(updatedCaso);
+export function updateAgente(req, res) {
+    const { id } = req.params;
+    const dadosAtualizacao = req.body; 
+    
+    const agente = agenteRepository.updateAgente(id, dadosAtualizacao);
+    
+    if (!agente) return res.status(statusCode.NOT_FOUND).json({ error: 'Agente não encontrado' });
+    res.status(statusCode.OK).json(agente);
 }
 ```
 
-- O fluxo parece correto, mas percebi que no PATCH você retorna `res.json(updatedCaso)` sem definir status code (o padrão é 200 OK, o que está ok).
-- Se o `casoRepository.updateCaso` está retornando `null` para IDs inexistentes, isso está certo.
-- Então o problema pode estar no middleware de validação que aceita payloads inválidos (não rejeitando com 400) ou no fato de que o PATCH está chamando a mesma função que o PUT, mas talvez o middleware não está validando corretamente.
-
-**Sugestão:**
-
-- Garanta que o middleware `validateCasoOnPatch.js` rejeite payloads inválidos, retornando 400.
-- Confirme que o `updateCaso` no repository está funcionando corretamente e retornando `null` para IDs não encontrados.
-- Para entender melhor o fluxo de validação e tratamento de erros, recomendo:  
-  👉 [Status 404 e tratamento de erros em APIs](https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/404)  
-  👉 [Validação em APIs Node.js/Express](https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_)
-
----
-
-### 3. Criação de Caso com agente_id inválido não retorna 404
-
-No seu controller de casos, você faz uma verificação importante para garantir que o agente existe antes de criar o caso:
-
-```js
-export function createCaso(req, res) {
-  const { agente_id } = req.body;
-  
-  const agente = agentesRepository.getAgenteById(agente_id);
-
-  if (!agente) {
-    return res.status(statusCode.NOT_FOUND).json({ message: 'Agente não encontrado' });
-  }
-
-  const novoCaso = { id: uuidv4(), ...req.body };
-  const saved =  casoRepository.createCaso(novoCaso);
-  return res.status(statusCode.CREATED).json(saved);
-}
-```
-
-Isso está correto! Porém, você mencionou que o teste que espera o status 404 para agente inválido falha, o que indica que essa validação pode não estar sendo acionada corretamente.
-
-**Possíveis causas:**
-
-- O middleware de validação `validateCasoOnCreate.js` pode estar bloqueando o fluxo antes da verificação do agente, ou não está validando corretamente o campo `agente_id`.
-- Ou o campo `agente_id` está vindo com nome diferente ou formato inesperado no payload.
-
-**Recomendo:**
-
-- Verifique se o middleware `validateCasoOnCreate.js` está validando a presença e o formato do campo `agente_id` corretamente.
-- Garanta que o corpo da requisição está enviando `agente_id` exatamente com esse nome.
-- Para aprofundar no tema de validação e tratamento de erros, veja:  
-  👉 [Status 400 para payloads inválidos](https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/400)
-
----
-
-### 4. Filtros e buscas nos endpoints de casos e agentes estão inconsistentes
-
-Você implementou filtros muito legais, como busca por status, agente responsável, palavras-chave, e ordenação por data de incorporação. Isso é show! 🎯
-
-Porém, notei alguns detalhes que podem estar impedindo que esses filtros funcionem 100%:
-
-- No controller de casos, você tem a função `searchCasosPorTexto` declarada, mas no `routes/casosRoutes.js` você chama `casoController.searchCasos(req, res)`:
-
-```js
-// routes/casosRoutes.js
-const { q } = req.query;
-
-if (q) return casoController.searchCasos(req, res);
-```
-
-Mas no controller:
-
-```js
-export function searchCasosPorTexto(req, res) {
-  // ...
-}
-```
-
-Ou seja, o nome da função exportada é `searchCasosPorTexto`, mas você está chamando `searchCasos`. Isso gera erro porque essa função não existe.
-
-**Solução simples:**
-
-- Alinhe o nome da função exportada e importada para usar o mesmo nome, por exemplo:
-
-```js
-// controllers/casosController.js
-export function searchCasos(req, res) {
-  // implementação
-}
-```
-
-Ou ajuste a rota para chamar `searchCasosPorTexto`.
-
-- Isso também pode estar acontecendo com outros filtros, verifique se os nomes das funções chamadas nas rotas correspondem aos exports dos controllers.
-
----
-
-### 5. Penalidades: Alteração indevida do campo `id` em PUT
-
-Vi que você permite alterar o campo `id` dos agentes e dos casos na atualização completa (PUT), o que não é recomendado, pois o `id` deve ser imutável e único.
-
-No seu controller de agentes:
+E no `updateAgente` do repository:
 
 ```js
 export function updateAgente(id, updatedFields) {
-  const { id: _, ...fieldsToUpdate } = updatedFields;
+  const index = agents.findIndex(agente => agente.id === id);
+  if (index === -1) return null;
+
+  const { id: _, ...fieldsToUpdate } = updatedFields; // Ignora o id do payload
+
+  agents[index] = { ...agents[index], ...fieldsToUpdate };
+  return agents[index];
+}
+```
+
+Aqui você fez bem em ignorar o `id` do payload no repository, mas o problema pode estar na validação antes do update. Se o middleware de validação permitir o `id` no corpo da requisição, a API pode não estar respondendo com erro 400 para essa situação, o que é esperado.
+
+👉 Para corrigir isso, ajuste seus middlewares de validação para PUT (e também PATCH) para rejeitar payloads que tentem alterar o `id`. Isso ajuda a manter a integridade dos dados.  
+Recomendo estudar mais sobre validação e tratamento de erros com status 400 aqui:  
+https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/400
+
+---
+
+### 3. Falhas na filtragem e busca de casos
+
+Você implementou as rotas para filtrar casos por status, agente e por busca textual, porém algumas funções no controller parecem ter nomes inconsistentes ou não estão sendo chamadas corretamente.
+
+Por exemplo, no seu `casosController.js`:
+
+```js
+export function searchCasosPorTexto(req, res) {
+  const { q } = req.query;
+  const resultados = casoRepository.searchCasos(q);
+
+  if (!resultados || resultados.length === 0) {
+    return res.status(statusCode.NOT_FOUND).json({ error: 'Nenhum caso corresponde à pesquisa' });
+  }
+  
+  res.status(statusCode.OK).json(resultados);
+}
+```
+
+Mas na rota você tem:
+
+```js
+router.get('/', (req, res) => {
+    const { agente_id, status, q } = req.query;
+  
+    if (agente_id) return casoController.getCasosPorAgente(req, res);
+    if (status) return casoController.getCasosPorStatus(req, res);
+    if (q) return casoController.searchCasos(req, res);
+  
+    return casoController.listCasos(req, res);
+  });
+```
+
+Note que você chama `casoController.searchCasos`, mas a função exportada se chama `searchCasosPorTexto`. Isso faz com que a busca textual não funcione, pois a função correta não está sendo chamada.
+
+👉 Para resolver, alinhe os nomes das funções entre o controller e as rotas. Por exemplo, renomeie a função no controller para `searchCasos` ou ajuste a rota para usar `searchCasosPorTexto`.
+
+---
+
+### 4. Parâmetros de consulta inconsistentes para casos por agente
+
+No controller `getCasosPorAgente`:
+
+```js
+export function getCasosPorAgente(req, res) {
+  const { id } = req.query;
+  const casos = casoRepository.getCasosByAgenteId(id);
   // ...
 }
 ```
 
-Aqui você exclui o `id` do objeto atualizado, o que é ótimo!
-
-Mas no controller de casos, no `updateCaso`:
+Mas na rota você espera o parâmetro `agente_id`:
 
 ```js
-export function updateCaso(id, updatedFields) {
-  const { id: _, ...fieldsToUpdate } = updatedFields;
+const { agente_id, status, q } = req.query;
+
+if (agente_id) return casoController.getCasosPorAgente(req, res);
+```
+
+Aqui, o controller está buscando `id` em `req.query`, mas o parâmetro enviado é `agente_id`. Isso faz com que a função receba `undefined` e retorne resultados errados ou vazios.
+
+👉 Ajuste o controller para extrair `agente_id` do query, assim:
+
+```js
+export function getCasosPorAgente(req, res) {
+  const { agente_id } = req.query;
+  const casos = casoRepository.getCasosByAgenteId(agente_id);
   // ...
 }
 ```
 
-Você fez o mesmo no repository, mas parece que no controller pode estar permitindo o `id` passar.
+---
 
-**Verifique:**
+### 5. Validação insuficiente para datas de incorporação no futuro
 
-- Que em todos os lugares que atualizam os recursos, você está protegendo o campo `id` para não ser alterado.
-- No controller e no repository, remova o `id` do payload antes de atualizar.
+Vi que você aceita datas de incorporação que podem estar no futuro, o que não faz sentido no contexto de agentes já incorporados.
+
+No seu middleware de validação (não enviado aqui), você precisa incluir uma regra que rejeite datas maiores que a data atual.
+
+👉 Para isso, use uma validação que compare a data recebida com a data atual e retorne erro 400 se a data for inválida. Isso vai evitar registros inconsistentes.
 
 ---
 
-### 6. Validação da data de incorporação
+### 6. Organização e estrutura do projeto
 
-Você ainda permite registrar agentes com `dataDeIncorporacao` no futuro, o que não faz sentido no contexto real e viola as regras de negócio.
+Sua estrutura de diretórios está muito próxima do esperado, o que é ótimo! Apenas um detalhe: na pasta `docs` você tem o arquivo `swagger.json`, mas o esperado era `swagger.js` (embora o `.json` funcione, o padrão do projeto é `.js` para facilitar manipulação).
 
-Para corrigir isso:
+Além disso, o arquivo `utils` poderia conter um middleware global de tratamento de erros (`errorHandler.js`), para centralizar o tratamento de erros e evitar repetição nos controllers.
 
-- No middleware de validação de criação e atualização de agentes, adicione uma checagem para garantir que a data seja menor ou igual a hoje.
-- Você pode usar algo como:
+👉 Recomendo implementar um middleware de tratamento de erros para deixar seu código mais limpo e robusto. Dá uma olhada nesse vídeo para entender melhor arquitetura MVC e organização de projetos Node.js:  
+https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH
+
+---
+
+## 💡 Sugestões de Código para Melhorias
+
+### Middleware para impedir alteração de `id` no PUT/PATCH
 
 ```js
-const data = new Date(req.body.dataDeIncorporacao);
-const hoje = new Date();
-if (data > hoje) {
-  return res.status(400).json({ error: 'Data de incorporação não pode ser no futuro.' });
+function validateNoIdChange(req, res, next) {
+  if ('id' in req.body) {
+    return res.status(400).json({ error: 'Não é permitido alterar o campo id.' });
+  }
+  next();
 }
 ```
 
-Assim, você evita dados inconsistentes na sua base.
+Use esse middleware nas rotas PUT e PATCH para agentes e casos.
 
 ---
 
-### 7. Organização da Estrutura de Pastas
+### Ajuste no controller de casos para filtro por agente
 
-Sua estrutura está bem próxima do esperado! 🚀
+```js
+export function getCasosPorAgente(req, res) {
+  const { agente_id } = req.query;
+  if (!agente_id) {
+    return res.status(statusCode.BAD_REQUEST).json({ error: 'Parâmetro "agente_id" é obrigatório.' });
+  }
+  const casos = casoRepository.getCasosByAgenteId(agente_id);
 
-Você tem:
-
-```
-├── routes/
-│   ├── agentesRoutes.js
-│   └── casosRoutes.js
-├── controllers/
-│   ├── agentesController.js
-│   └── casosController.js
-├── repositories/
-│   ├── agentesRepository.js
-│   └── casosRepository.js
-├── docs/
-│   └── swagger.json
-├── server.js
+  if (!casos || casos.length === 0) {
+    return res.status(statusCode.NOT_FOUND).json({ error: 'Nenhum caso encontrado para este agente' });
+  }
+  res.status(statusCode.OK).json(casos); 
+}
 ```
 
-Porém, notei que sua pasta `utils` tem middlewares e schemas, o que está ótimo, mas o arquivo `statusCode.js` está dentro de `utils` e você não tem um arquivo específico para tratamento de erros centralizado (como `errorHandler.js`).
+---
 
-**Recomendação para projetos futuros:**
+## 📚 Recursos para Você Aprofundar
 
-- Crie um middleware global para tratamento de erros (error handler) e coloque na pasta `utils/`.
-- Isso ajuda a centralizar o tratamento de erros e manter seu código mais limpo.
-- Veja este vídeo para entender melhor a arquitetura MVC e organização do seu projeto:  
-  👉 [Arquitetura MVC em Node.js](https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH)
+- **Validação e tratamento de erros em APIs Node.js/Express:**  
+  https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_
+
+- **Documentação oficial do Express.js sobre roteamento:**  
+  https://expressjs.com/pt-br/guide/routing.html
+
+- **Arquitetura MVC aplicada a projetos Node.js:**  
+  https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH
+
+- **Status HTTP 400 e 404 explicados:**  
+  https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/400  
+  https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/404
 
 ---
 
-## Resumo Rápido dos Pontos para Focar 🔥
+## 📝 Resumo dos Pontos para Focar
 
-- [ ] Ajustar validação do PATCH para agentes, garantindo que payloads inválidos retornem 400.
-- [ ] Garantir que atualização de casos (PUT e PATCH) retorne 404 corretamente para IDs inexistentes.
-- [ ] Corrigir nome da função de busca de casos para que o filtro por texto funcione.
-- [ ] Proteger o campo `id` para que não seja alterado em atualizações (PUT/PATCH).
-- [ ] Validar que `dataDeIncorporacao` do agente não pode ser uma data futura.
-- [ ] Verificar e ajustar middlewares de validação para garantir consistência dos dados.
-- [ ] Considerar implementar um middleware global de tratamento de erros para centralizar respostas.
-- [ ] Revisar nomes e chamadas de funções entre rotas e controllers para evitar erros de referência.
-
----
-
-RicToni, seu código mostra que você já domina bastante os conceitos fundamentais de APIs REST com Express.js e está aplicando boas práticas de modularização e validação. Com esses ajustes, sua API vai ficar muito mais robusta, confiável e alinhada com boas práticas do mercado! 🚀
-
-Continue assim, aprendendo cada vez mais e colocando a mão na massa! Se quiser, posso te ajudar a revisar os middlewares de validação ou montar exemplos de tratamento de erro centralizado. 😉
+- Ajustar middleware de validação para PATCH em agentes, garantindo retorno 400 para payloads inválidos.
+- Impedir alteração do campo `id` nos métodos PUT e PATCH para agentes e casos.
+- Corrigir nomes inconsistentes de funções no controller e rotas (ex: `searchCasosPorTexto` vs `searchCasos`).
+- Corrigir parâmetro usado no filtro de casos por agente (`agente_id` em vez de `id`).
+- Validar datas de incorporação para não permitir datas futuras.
+- Considerar implementar um middleware global de tratamento de erros para centralizar respostas.
+- Revisar organização da pasta `docs` e considerar padrões para arquivos de documentação.
 
 ---
 
-### Recursos recomendados para você avançar ainda mais:
+RicToni, você está no caminho certo, com uma base sólida e funcionalidades essenciais implementadas! 🌟 Com esses ajustes, sua API ficará ainda mais robusta e confiável, pronta para ser usada e ampliada.
 
-- [Validação de dados em APIs Node.js/Express](https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_)  
-- [Status 400 e 404: Como tratar erros em APIs REST](https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/400)  
-- [Arquitetura MVC em Node.js](https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH)  
-- [Express.js Routing (Documentação Oficial)](https://expressjs.com/pt-br/guide/routing.html)  
+Continue nessa pegada, aprendendo e refinando seu código. Qualquer dúvida, estou aqui para ajudar! 💪🚀
 
----
-
-Parabéns pelo progresso, RicToni! 👏✨ Estou aqui torcendo para que você continue evoluindo e construindo APIs cada vez mais incríveis! Qualquer dúvida, só chamar! 🚀🤖
-
-Abraços! 🤗👨‍💻
+Um abraço do seu Code Buddy! 🤖✨
+```
 
 > Caso queira tirar uma dúvida específica, entre em contato com o Chapter no nosso [discord](https://discord.gg/DryuHVnz).
 
